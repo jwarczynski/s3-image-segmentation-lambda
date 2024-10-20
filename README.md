@@ -58,7 +58,11 @@ This project performs image segmentation on images uploaded to an AWS S3 bucket.
     ```bash
     export AWS_ACCOUNT_ID="<account-id>"
     ```
-5. **Deploy the infrastructure**:
+5. Create role in aws managment console:
+   - Create a permission policy and execution role as in [this](https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html) aws tutorial
+   - Role name must be `lambda-s3-trigger-role`.
+   
+6. **Deploy the infrastructure**:
     ```bash
     cd ../lambda-cdk-infra
     cdk deploy
