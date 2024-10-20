@@ -33,6 +33,17 @@ class LambdaCdkInfraStack(Stack):
         bucket_name = "image-segmentation-bucket"
         bucket = self.get_or_create_bucket(bucket_name)
 
+        # Create new role instead of referencing exsiting one
+        # lambda_role = iam.Role(self, "LambdaS3TriggerRole",
+        #                          assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+        #                             managed_policies=[
+        #                                 iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
+        #                                 iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaVPCAccessExecutionRole"),
+        #                                 iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaRole")
+        #                             ]
+        #                         )
+
+
         # Reference the existing role
         lambda_role = iam.Role.from_role_arn(
             self, "LambdaS3TriggerRole",
