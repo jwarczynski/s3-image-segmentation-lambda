@@ -47,7 +47,7 @@ class LambdaCdkInfraStack(Stack):
         # Reference the existing role
         lambda_role = iam.Role.from_role_arn(
             self, "LambdaS3TriggerRole",
-            role_arn=f"arn:aws:iam::{os.getenv("AWS_ACCOUNT_ID")}:role/lambda-s3-trigger-role"
+            role_arn=f"arn:aws:iam::{os.getenv('AWS_ACCOUNT_ID')}:role/lambda-s3-trigger-role"
         )
 
         # Create an inline policy that allows S3 GetObject access
