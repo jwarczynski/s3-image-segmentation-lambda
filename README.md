@@ -38,7 +38,7 @@ This project performs image segmentation on images uploaded to an AWS S3 bucket.
     ```
 2. **Build the Lambda Docker image**:
    ```bash
-   cd ../lambda-image
+   cd ../image
    docker build -t s3-image-segmentation-lambda .
    ```
 3. **Push the Docker image to ECR**:
