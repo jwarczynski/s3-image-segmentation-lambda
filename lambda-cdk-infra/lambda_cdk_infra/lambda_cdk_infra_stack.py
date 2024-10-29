@@ -20,19 +20,18 @@ class LambdaCdkInfraStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        # Get reference to the ECR with the lambda function image
         ecr_repository = Repository.from_repository_name(
             self, "ECRRepository",
             repository_name="s3-image-segmentation-lambda"
         )
 
+        # Get image with lambda function form ECR
         api_image_code = DockerImageCode.from_ecr(
             repository=ecr_repository,
         )
 
-        bucket_name = "image-segmentation-bucket"
-        bucket = self.create_bucket(bucket_name)
-
-        # Create new role instead of referencing exsiting one
+        # Create new role for Lambda function
         lambda_role = iam.Role(self, "LambdaS3TriggerRole2",
                                assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
                                managed_policies=[
@@ -44,32 +43,6 @@ class LambdaCdkInfraStack(Stack):
                                ]
                                )
 
-        # Create an inline policy that allows S3 GetObject access
-        s3_access_policy = iam.Policy(self, "S3AccessPolicy",
-                                      statements=[
-                                          iam.PolicyStatement(
-                                              actions=["s3:GetObject"],
-                                              resources=[f"arn:aws:s3:::{bucket_name}/images/*"]
-                                              # Grant GetObject only on the images/ folder
-                                          ),
-                                          iam.PolicyStatement(
-                                              actions=["s3:PutObject"],
-                                              resources=[f"arn:aws:s3:::{bucket_name}/res/*"]
-                                              # Grant PutObject only on the res/ folder
-                                          )
-                                      ]
-                                      )
-
-        # Attach the inline policy to the Lambda role
-        s3_access_policy.attach_to_role(lambda_role)
-
-        # Trigger the Lambda function on .jpeg file uploads in the images/ folder
-        s3_event_source = eventsources.S3EventSource(
-            bucket,
-            events=[s3.EventType.OBJECT_CREATED],  # Trigger on object creation
-            filters=[s3.NotificationKeyFilter(prefix="images/", suffix=".jpeg")]  # Only .jpeg in images/ folder
-        )
-
         api_function = DockerImageFunction(
             self, "ImageSegmentationOnS3Upload",
             function_name="ImageSegmentationOnS3Upload",
@@ -79,18 +52,10 @@ class LambdaCdkInfraStack(Stack):
             environment={
                 "ENVIRONMENT": "production",
             },
-            events=[s3_event_source],
             role=lambda_role,
             retry_attempts=0,
             max_event_age=Duration.minutes(1),
         )
-
-        function_url = api_function.add_function_url(
-            auth_type=FunctionUrlAuthType.NONE
-        )
-
-        CfnOutput(self, "FunctionUrl", value=function_url.url)
-        CfnOutput(self, "BucketName", value=bucket.bucket_name)
 
     def create_bucket(self, bucket_name) -> s3.Bucket:
         bucket: s3.Bucket = s3.Bucket(
