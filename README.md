@@ -41,25 +41,36 @@ This project performs image segmentation on images uploaded to an AWS S3 bucket.
    cd ../image
    docker build -t s3-image-segmentation-lambda .
    ```
-3. **Push the Docker image to ECR**:
-   ```bash
-    aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin <account-id>.dkr.ecr.{region}.amazonaws.com
-    docker tag s3-image-segmentation-lambda:latest <account-id>.dkr.ecr.{region}.amazonaws.com/s3-image-segmentation-lambda:latest
-    docker push <account-id>.dkr.ecr.{region}.amazonaws.com/s3-image-segmentation-lambda:latest
-    ```
 
-4. **Set environment variables**:
+3. **Set environment variables**:
 
    a) In PowerShell
-   ```bash
+   ```Powershell
     $env:AWS_ACCOUNT_ID="<account-id>"
+    $env:REGION="<region>"
     ```
+    
    b) In bash
     ```bash
     export AWS_ACCOUNT_ID="<account-id>"
+    export REGION="<region>"
+    ```
+4. **Push the Docker image to ECR**:
+
+    a) In PowerShell
+    ```Powershell
+    aws ecr get-login-password --$env:REGION | docker login --username AWS --password-stdin "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:REGION.amazonaws.com"
+    docker tag s3-image-segmentation-lambda:latest "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:REGION.amazonaws.com/s3-image-segmentation-lambda:latest"
+    docker push "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:REGION.amazonaws.com/s3-image-segmentation-lambda:latest"
+    ```
+   b) In bash
+   ```bash
+    aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+    docker tag s3-image-segmentation-lambda:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/s3-image-segmentation-lambda:latest
+    docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/s3-image-segmentation-lambda:latest
     ```
    
-5**Deploy the infrastructure**:
+5. **Deploy the infrastructure**:
     ```bash
     cd ../lambda-cdk-infra
     cdk deploy
