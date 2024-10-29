@@ -87,8 +87,8 @@ class LambdaCdkInfraStack(Stack):
             self, "ImageSegmentationOnS3Upload",
             function_name="ImageSegmentationOnS3Upload",
             code=api_image_code,
-            timeout=Duration.seconds(15),
-            memory_size=1024,
+            timeout=Duration.seconds(30),
+            memory_size=2048,
             environment={
                 "ENVIRONMENT": "production",
             },
