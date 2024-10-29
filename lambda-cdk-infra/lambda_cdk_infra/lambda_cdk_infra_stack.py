@@ -106,26 +106,7 @@ class LambdaCdkInfraStack(Stack):
         CfnOutput(self, "BucketName", value=bucket.bucket_name)
 
     def get_or_create_bucket(self, bucket_name) -> s3.Bucket:
-        # try:
-        # Step 1: Try to reference an existing bucket by name
         return self.create_bucket(bucket_name)
-        bucket = s3.Bucket.from_bucket_name(
-            self, bucket_name,
-            bucket_name=bucket_name
-        )
-        print(f"Using existing bucket: {bucket_name}")
-        return bucket
-        # except ClientError as e:
-        #     # This catches client errors (e.g., permissions issues, misconfigurations)
-        #     print(f"ClientError: {e}")
-        # except Exception as e:
-        #     # Catches any other unexpected errors
-        #     print(f"An unexpected error occurred: {e}")
-        #     # Step 2: If the bucket doesn't exist or another error occurs, create a new one
-        #     print(f"Bucket '{bucket_name}' not found. Creating a new bucket.")
-        # bucket = self.create_bucket(bucket_name)
-        #
-        # return bucket
 
     def create_bucket(self, bucket_name) -> s3.Bucket:
         bucket: s3.Bucket = s3.Bucket(
