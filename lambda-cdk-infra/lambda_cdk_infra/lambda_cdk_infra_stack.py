@@ -27,11 +27,10 @@ class LambdaCdkInfraStack(Stack):
 
         api_image_code = DockerImageCode.from_ecr(
             repository=ecr_repository,
-            # cmd=["src/lambda_function.lambda_handler"]
         )
 
         bucket_name = "image-segmentation-bucket"
-        bucket = self.get_or_create_bucket(bucket_name)
+        bucket = self.create_bucket(bucket_name)
 
         # Create new role instead of referencing exsiting one
         lambda_role = iam.Role(self, "LambdaS3TriggerRole2",
@@ -44,12 +43,6 @@ class LambdaCdkInfraStack(Stack):
                                    iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaRole")
                                ]
                                )
-
-        # Reference the existing role
-        # lambda_role = iam.Role.from_role_arn(
-        #     self, "LambdaS3TriggerRole",
-        #     # role_arn=f"arn:aws:iam::{os.getenv('AWS_ACCOUNT_ID')}:role/lambda-s3-trigger-role"
-        # )
 
         # Create an inline policy that allows S3 GetObject access
         s3_access_policy = iam.Policy(self, "S3AccessPolicy",
@@ -77,12 +70,6 @@ class LambdaCdkInfraStack(Stack):
             filters=[s3.NotificationKeyFilter(prefix="images/", suffix=".jpeg")]  # Only .jpeg in images/ folder
         )
 
-        # api_image_code = DockerImageCode.from_image_asset(
-        #     directory="../image",
-        #     file="Dockerfile",
-        #     # cmd=["lambda_function.lambda_handler"]
-        # )
-
         api_function = DockerImageFunction(
             self, "ImageSegmentationOnS3Upload",
             function_name="ImageSegmentationOnS3Upload",
@@ -104,9 +91,6 @@ class LambdaCdkInfraStack(Stack):
 
         CfnOutput(self, "FunctionUrl", value=function_url.url)
         CfnOutput(self, "BucketName", value=bucket.bucket_name)
-
-    def get_or_create_bucket(self, bucket_name) -> s3.Bucket:
-        return self.create_bucket(bucket_name)
 
     def create_bucket(self, bucket_name) -> s3.Bucket:
         bucket: s3.Bucket = s3.Bucket(
