@@ -22,7 +22,7 @@ class LambdaCdkInfraStack(Stack):
 
         ecr_repository = Repository.from_repository_name(
             self, "ECRRepository",
-            repository_name="mlops/vision"
+            repository_name="s3-image-segmentation-lambda"
         )
 
         api_image_code = DockerImageCode.from_ecr(
