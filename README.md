@@ -73,6 +73,7 @@ This project performs image segmentation on images uploaded to an AWS S3 bucket.
 5. **Deploy the infrastructure**:
     ```bash
     cd ../lambda-cdk-infra
+    cdk bootstrap
     cdk deploy
     ```
     
